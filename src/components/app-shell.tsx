@@ -35,6 +35,7 @@ import { OperationsModule } from "./operations";
 import { AccountMenu } from "./account-menu";
 import { MySites, UserManagement } from "./site-access";
 import { PurchaseRequestsPage } from "./purchase-requests";
+import { PublicBrand } from "./public-brand";
 import { Empty } from "./ui";
 const groups = [
   {
@@ -111,9 +112,7 @@ export function AppShell() {
   if (!ready)
     return (
       <div className="loading">
-        <div className="logo-mark">
-          C<span />
-        </div>
+        <PublicBrand href="/dashboard" ariaLabel="ConStat dashboard" />
         <p>Opening ConStat…</p>
       </div>
     );
@@ -198,15 +197,12 @@ export function AppShell() {
         />
       )}
       <aside className={`sidebar ${mobileOpen ? "is-open" : ""}`}>
-        <Link href="/dashboard" className="brand">
-          <div className="logo-mark">
-            C<span />
-          </div>
-          <span>
-            ConStat<small>CONSTRUCTION STATISTICS</small>
-          </span>
-          <span className="beta">BETA</span>
-        </Link>
+        <PublicBrand
+          href="/dashboard"
+          ariaLabel="ConStat dashboard"
+          className="brand"
+          showBeta
+        />
         <button
           className="mobile-close icon-button"
           aria-label="Close navigation"
@@ -274,21 +270,11 @@ export function AppShell() {
             >
               <Menu size={21} />
             </button>
-            <Link
+            <PublicBrand
               href="/dashboard"
               className="mobile-header-brand"
-              aria-label="ConStat dashboard"
-            >
-              <span className="logo-mark" aria-hidden="true">
-                C<span />
-              </span>
-              <span className="mobile-brand-copy">
-                <span className="mobile-brand-name">ConStat</span>
-                <span className="mobile-brand-tagline">
-                  Construction Statistics
-                </span>
-              </span>
-            </Link>
+              ariaLabel="ConStat dashboard"
+            />
             <span className="desktop-breadcrumb">Workspace</span>
             <ChevronRight className="desktop-breadcrumb" size={14} />
             <strong className="desktop-breadcrumb">

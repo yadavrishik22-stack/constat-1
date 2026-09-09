@@ -41,6 +41,13 @@ test("landing navigation, mobile branding, reduced motion and login/logout", asy
   page,
 }) => {
   await page.goto("/");
+  const landingMark = await page
+    .locator(".landing-nav .logo-mark")
+    .evaluate((element) => ({
+      background: getComputedStyle(element).backgroundColor,
+      color: getComputedStyle(element).color,
+      radius: getComputedStyle(element).borderRadius,
+    }));
   await expect(page.getByRole("heading", { level: 1 })).toContainText(
     "Construction tracking",
   );
@@ -56,11 +63,27 @@ test("landing navigation, mobile branding, reduced motion and login/logout", asy
     .getByRole("navigation", { name: "Public navigation" })
     .getByRole("link", { name: "Login", exact: true })
     .click();
+  const loginMark = await page
+    .locator(".auth-mobile-brand .logo-mark")
+    .evaluate((element) => ({
+      background: getComputedStyle(element).backgroundColor,
+      color: getComputedStyle(element).color,
+      radius: getComputedStyle(element).borderRadius,
+    }));
+  expect(loginMark).toEqual(landingMark);
   await page.getByLabel("Email or Username").fill("admin@constat.in");
   await page.getByLabel("Password").fill("Admin@123");
   await page.getByRole("button", { name: "Login", exact: true }).click();
   await expect(page).toHaveURL(/dashboard$/);
-  await expect(page.locator(".mobile-brand-tagline")).toBeVisible();
+  const appMark = await page
+    .locator(".mobile-header-brand .logo-mark")
+    .evaluate((element) => ({
+      background: getComputedStyle(element).backgroundColor,
+      color: getComputedStyle(element).color,
+      radius: getComputedStyle(element).borderRadius,
+    }));
+  expect(appMark).toEqual(landingMark);
+  await expect(page.locator(".mobile-header-brand small")).toBeVisible();
   await expect(page.getByLabel("Testing role")).toHaveCount(0);
   await page.reload();
   await expect(page.getByRole("heading", { level: 1 })).toContainText(
@@ -81,17 +104,19 @@ test("landing navigation, mobile branding, reduced motion and login/logout", asy
   ).toBe("none");
 });
 
-test("crane hero and short checkout flow record a purchase request", async ({
+test("real construction hero and short checkout flow record a purchase request", async ({
   page,
 }) => {
   await page.goto("/");
   await expect(
     page.getByRole("heading", { name: /Construction tracking/ }),
   ).toBeVisible();
-  await expect(page.locator(".simple-hero-graphic").first()).toBeVisible();
-  await expect(page.locator(".crane-lines").first()).toBeVisible();
-  await expect(page.locator(".building-lines").first()).toBeVisible();
-  await expect(page.locator(".light-hero img")).toHaveCount(0);
+  const heroImage = page.locator(".hero-construction-visual img").first();
+  await expect(heroImage).toBeVisible();
+  await expect(heroImage).toHaveAttribute("src", /constat-crane-building\.png/);
+  await expect(page.locator(".hero-construction-visual svg")).toHaveCount(0);
+  await expect(page.getByText("LIVE SITE OVERVIEW")).toHaveCount(0);
+  await expect(page.getByText("Numbers that build progress")).toHaveCount(0);
   await expect(page.getByText("₹25,999")).toHaveCount(0);
   await page
     .getByRole("link", { name: "Buy ConStat", exact: true })
@@ -99,9 +124,7 @@ test("crane hero and short checkout flow record a purchase request", async ({
     .click();
   await expect(page).toHaveURL(/buy$/);
   await expect(page.getByText("₹25,999")).toHaveCount(0);
-  await expect(
-    page.getByText("Multiple construction sites"),
-  ).toBeVisible();
+  await expect(page.getByText("Multiple construction sites")).toBeVisible();
   await page.getByRole("link", { name: "Continue to Checkout" }).click();
   await expect(page).toHaveURL(/buy\/checkout$/);
   await expect(page.getByText("₹25,999")).toBeVisible();

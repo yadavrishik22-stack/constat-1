@@ -10,7 +10,6 @@
   letter-spacing: -1px;
   font-weight: 750;
   line-height: 1.1;
-  animation: brand-copy 0.55s ease-out both;
 }
 .public-brand-copy small {
   display: block;
@@ -18,12 +17,6 @@
   letter-spacing: 1.3px;
   margin-top: 5px;
   font-weight: 600;
-}
-.public-brand .logo-mark {
-  animation: brand-mark 0.5s ease-out both;
-}
-.public-brand .logo-mark span {
-  animation: brand-line 0.6s ease-out both;
 }
 .eyebrow {
   display: block;
@@ -419,11 +412,17 @@
   gap: 100px;
 }
 .auth-visual-content .logo-mark {
-  background: #fff;
-  color: #111;
+  background: #111;
+  color: #fff;
 }
 .auth-visual-content .logo-mark span {
-  background: #fff;
+  background: #fafafa;
+}
+.auth-visual-content > .public-brand {
+  width: max-content;
+  padding: 10px 13px;
+  color: #111;
+  background: rgba(255, 255, 255, 0.94);
 }
 .auth-visual h2 {
   font-size: clamp(40px, 4.5vw, 72px);
@@ -677,34 +676,6 @@
 }
 .user-details dt {
   color: #666;
-}
-@keyframes brand-mark {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-@keyframes brand-copy {
-  from {
-    opacity: 0;
-    transform: translateX(-7px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-@keyframes brand-line {
-  from {
-    transform: scaleX(0);
-  }
-  to {
-    transform: scaleX(1);
-  }
 }
 @media (max-width: 1000px) {
   .landing-feature-grid {
@@ -1653,97 +1624,29 @@
   text-underline-offset: 5px;
 }
 
-.simple-hero-graphic {
+.hero-construction-visual {
   position: relative;
-  min-height: 460px;
+  min-height: 500px;
   overflow: hidden;
-  color: #777773;
-  background:
-    radial-gradient(
-      circle at 70% 62%,
-      rgba(225, 225, 220, 0.6),
-      transparent 48%
-    ),
-    linear-gradient(180deg, rgba(250, 250, 248, 0) 0%, #f4f4f1 100%);
+  background: #fafafa;
 }
-.simple-hero-graphic::after {
-  content: "";
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  height: 1px;
-  background: #d8d8d3;
+.hero-construction-visual > img {
+  object-fit: cover;
+  object-position: right bottom;
+  filter: grayscale(1) contrast(1.04);
 }
-.simple-site-drawing {
+.hero-photo-fade {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
-}
-.site-grid {
-  stroke: #d9d9d4;
-  stroke-width: 0.65;
-  opacity: 0.34;
-}
-.building-lines {
-  stroke: #858580;
-  stroke-width: 1.05;
-}
-.crane-lines {
-  stroke: #292928;
-  stroke-width: 1.15;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-.construction-caption {
-  position: absolute;
-  top: 28px;
-  left: 3%;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: #777;
-  font-size: 8px;
-  letter-spacing: 2px;
-}
-.construction-caption span {
-  width: 38px;
-  height: 1px;
-  background: #999;
-}
-.simple-indicator {
-  position: absolute;
-  min-width: 112px;
-  padding: 11px 13px;
-  background: rgba(255, 255, 255, 0.88);
-  border: 1px solid rgba(200, 200, 195, 0.9);
-  color: #111;
-  backdrop-filter: blur(5px);
-}
-.simple-indicator span {
-  display: block;
-  margin-bottom: 7px;
-  color: #777;
-  font-size: 8px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-.simple-indicator strong {
-  font-size: 15px;
-  font-weight: 620;
-}
-.indicator-diesel {
-  left: 4%;
-  top: 28%;
-}
-.indicator-workforce {
-  left: 15%;
-  bottom: 9%;
-}
-.indicator-materials {
-  right: 2%;
-  bottom: 17%;
+  background:
+    linear-gradient(
+      90deg,
+      #fff 0%,
+      rgba(255, 255, 255, 0.82) 8%,
+      transparent 34%
+    ),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.35), transparent 22%);
+  pointer-events: none;
 }
 
 .light-section-heading {
@@ -1815,9 +1718,11 @@
   gap: 90px;
   background: #f2f2ef;
 }
-.product-view-graphic .simple-hero-graphic {
+.product-view-graphic .hero-construction-visual {
   min-height: 320px;
-  background: linear-gradient(180deg, #fff 0%, #f5f5f2 100%);
+}
+.product-view-graphic .hero-photo-fade {
+  background: linear-gradient(90deg, #f2f2ef 0%, transparent 28%);
 }
 .product-view > div:last-child p {
   max-width: 370px;
@@ -2112,33 +2017,15 @@
   .simple-text-link {
     padding-left: 8px;
   }
-  .simple-hero-graphic {
+  .hero-construction-visual {
     width: 100%;
-    min-height: 310px;
+    min-height: 330px;
   }
-  .simple-site-drawing {
-    width: 126%;
-    max-width: none;
-    left: -20%;
+  .hero-construction-visual > img {
+    object-position: 72% bottom;
   }
-  .simple-indicator {
-    min-width: 86px;
-    padding: 9px 10px;
-  }
-  .simple-indicator strong {
-    font-size: 14px;
-  }
-  .indicator-workforce {
-    left: 4%;
-    bottom: 7%;
-  }
-  .indicator-materials {
-    right: 3%;
-    bottom: 14%;
-  }
-  .indicator-diesel {
-    left: 3%;
-    top: 24%;
+  .hero-photo-fade {
+    background: linear-gradient(180deg, #fff 0%, transparent 19%);
   }
   .light-feature-grid {
     grid-template-columns: 1fr 1fr;
@@ -2161,7 +2048,7 @@
   .product-view-graphic {
     order: 2;
   }
-  .product-view-graphic .simple-hero-graphic {
+  .product-view-graphic .hero-construction-visual {
     min-height: 255px;
   }
   .light-cta {

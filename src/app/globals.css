@@ -210,13 +210,13 @@ textarea::placeholder {
   gap: 9px;
   margin: 0 5px 30px;
 }
-.brand > span:not(.beta) {
+.brand .public-brand-copy {
   font-size: 21px;
   line-height: 1.1;
   letter-spacing: -0.8px;
   font-weight: 700;
 }
-.brand small {
+.brand .public-brand-copy small {
   display: block;
   font-size: 6.4px;
   letter-spacing: 0.8px;
@@ -1746,7 +1746,7 @@ td strong {
   .breadcrumb .desktop-breadcrumb {
     display: none;
   }
-  .mobile-header-brand {
+  .mobile-header-brand.public-brand {
     display: inline-flex;
     align-items: center;
     gap: 7px;
@@ -1763,17 +1763,13 @@ td strong {
     top: 9px;
     background: #fff;
   }
-  .mobile-brand-name {
-    display: block;
-    line-height: 19px;
+  .mobile-header-brand .public-brand-copy {
+    line-height: 1.05;
     font-size: 17px;
     font-weight: 700;
     letter-spacing: -0.6px;
   }
-}
-
-@media (max-width: 850px) {
-  .mobile-brand-tagline {
+  .mobile-header-brand .public-brand-copy small {
     display: block;
     margin-top: 2px;
     color: #666;

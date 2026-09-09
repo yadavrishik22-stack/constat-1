@@ -48,7 +48,7 @@ export default function Landing() {
               </Link>
             </div>
           </div>
-          <HeroGraphic />
+          <HeroGraphic priority />
         </section>
 
         <section id="features" className="landing-section light-features">
