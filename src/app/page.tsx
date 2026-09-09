@@ -40,12 +40,6 @@ export default function Landing() {
               <Link href="/buy" className="btn btn-primary">
                 Buy ConStat <ArrowRight size={18} />
               </Link>
-              <Link href="/login" className="btn btn-secondary">
-                Login
-              </Link>
-              <Link href="/signup" className="simple-text-link">
-                Sign Up
-              </Link>
             </div>
           </div>
           <HeroGraphic priority />

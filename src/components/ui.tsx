@@ -114,12 +114,14 @@ export function Badge({ children }: { children: React.ReactNode }) {
           "Received",
           "Resolved",
           "Completed",
+          "Payment Successful",
         ].includes(status),
         "badge-amber": [
           "Maintenance",
           "On Hold",
           "In Progress",
           "High",
+          "Pending Payment",
         ].includes(status),
         "badge-red": ["Absent", "Inactive", "Critical"].includes(status),
       })}

@@ -20,7 +20,6 @@ const request = {
   email: "RAVI@EXAMPLE.COM",
   phone: "+91 98765 43210",
   projectCount: 3,
-  notes: "Three active sites",
 };
 
 describe("Purchase request repository", () => {
@@ -31,10 +30,17 @@ describe("Purchase request repository", () => {
     const saved = repo.create(request);
     expect(saved.email).toBe("ravi@example.com");
     expect(saved.status).toBe("new");
+    expect(saved.paymentStatus).toBe("pending_payment");
+    expect(saved.amount).toBe(25999);
 
     const restored = new PurchaseRequestRepository(storage);
     restored.hydrate();
     expect(restored.getSnapshot()).toHaveLength(1);
+    restored.completeDemoPayment(saved.id, "CST-PAY-20260910-ABCD");
+    expect(restored.getSnapshot()[0]).toMatchObject({
+      paymentStatus: "payment_successful",
+      transactionReference: "CST-PAY-20260910-ABCD",
+    });
     restored.setStatus(saved.id, "contacted");
     expect(restored.getSnapshot()[0].status).toBe("contacted");
   });

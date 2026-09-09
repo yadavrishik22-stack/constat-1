@@ -54,31 +54,18 @@ export function AuthPage({ signup = false }: { signup?: boolean }) {
     <main className="auth-layout" id="main-content">
       <aside className="auth-visual">
         <Image
-          src="/images/landing/construction.webp"
-          alt="Concrete structure and crane at an active construction site"
+          src="/images/landing/constat-crane-building.png"
+          alt="Tower crane above a building under construction"
           fill
           sizes="50vw"
         />
         <div className="auth-visual-content">
           <PublicBrand />
           <div>
-            <span className="eyebrow">BUILT FOR THE PEOPLE WHO BUILD.</span>
-            <h2>
-              Every Site.
-              <br />
-              Every Stat.
-              <br />
-              One View.
-            </h2>
-            <p>
-              From the first delivery to the last pour.
-              <br />
-              Keep your site’s story in one place.
-            </p>
+            <span className="eyebrow">CONSTRUCTION OPERATIONS</span>
+            <h2>Know what&apos;s happening on site.</h2>
+            <p>One simple place for your construction operations.</p>
           </div>
-          <span className="auth-visual-foot">
-            CONSTAT / CONSTRUCTION STATISTICS TRACKER
-          </span>
         </div>
       </aside>
       <section className="auth-form-area">

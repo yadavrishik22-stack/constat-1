@@ -56,6 +56,11 @@ test("landing navigation, mobile branding, reduced motion and login/logout", asy
     .getByRole("link", { name: "Features" })
     .click();
   await expect(page).toHaveURL(/#features$/);
+  await page.goto("/login");
+  await expect(page.locator(".auth-visual img")).toHaveAttribute(
+    "src",
+    /constat-crane-building\.png/,
+  );
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
   await page.getByRole("button", { name: "Open menu" }).click();
@@ -104,7 +109,7 @@ test("landing navigation, mobile branding, reduced motion and login/logout", asy
   ).toBe("none");
 });
 
-test("real construction hero and short checkout flow record a purchase request", async ({
+test("setup request, demo card, OTP and payment receipt persist safely", async ({
   page,
 }) => {
   await page.goto("/");
@@ -118,31 +123,82 @@ test("real construction hero and short checkout flow record a purchase request",
   await expect(page.getByText("LIVE SITE OVERVIEW")).toHaveCount(0);
   await expect(page.getByText("Numbers that build progress")).toHaveCount(0);
   await expect(page.getByText("₹25,999")).toHaveCount(0);
+  await expect(
+    page.locator(".light-hero").getByRole("link", { name: "Login" }),
+  ).toHaveCount(0);
+  await expect(
+    page.locator(".light-hero").getByRole("link", { name: "Sign Up" }),
+  ).toHaveCount(0);
+  await expect(
+    page
+      .getByRole("navigation", { name: "Public navigation" })
+      .getByRole("link", { name: "Login" }),
+  ).toBeVisible();
+  await expect(
+    page
+      .getByRole("navigation", { name: "Public navigation" })
+      .getByRole("link", { name: "Sign Up" }),
+  ).toBeVisible();
   await page
     .getByRole("link", { name: "Buy ConStat", exact: true })
     .first()
     .click();
   await expect(page).toHaveURL(/buy$/);
-  await expect(page.getByText("₹25,999")).toHaveCount(0);
-  await expect(page.getByText("Multiple construction sites")).toBeVisible();
-  await page.getByRole("link", { name: "Continue to Checkout" }).click();
-  await expect(page).toHaveURL(/buy\/checkout$/);
   await expect(page.getByText("₹25,999")).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Request Your Setup" }),
+  ).toBeVisible();
   await page.getByLabel("Company Name").fill("Build Right Constructions");
   await page.getByLabel("Full Name").fill("Ravi Kumar");
   await page.getByLabel("Email Address").fill("ravi@example.com");
   await page.getByLabel("Phone Number").fill("+91 98765 43210");
-  await page.getByLabel("Number of Sites / Projects").fill("3");
-  await page.getByLabel("Notes (optional)").fill("Three active sites");
+  await page.getByLabel("Number of Sites").fill("3");
+  await expect(page.getByLabel("Notes (optional)")).toHaveCount(0);
   await page.getByRole("button", { name: "Request ConStat Setup" }).click();
-  await expect(page.getByRole("heading", { name: "Thank you." })).toBeVisible();
+  await expect(page).toHaveURL(/buy\/payment\?request=/);
+  await expect(
+    page.getByRole("heading", { name: "ConStat Demo Payment" }),
+  ).toBeVisible();
+  await expect(page.getByText("No real money will be charged.")).toBeVisible();
+  await page.getByLabel("Name on Card").fill("Ramesh Kumar");
+  await page.getByLabel("Card Number").fill("4111 1111 1111 1111");
+  await page.getByLabel("Expiry").fill("12/30");
+  await page.getByLabel("CVV").fill("123");
+  await page.getByRole("button", { name: "Pay ₹25,999" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Verify Payment" }),
+  ).toBeVisible();
+  const beforeOtp = await page.evaluate(
+    () => localStorage.getItem("constat.purchase-requests.v1") ?? "",
+  );
+  expect(beforeOtp).not.toContain("4111111111111111");
+  expect(beforeOtp).not.toContain("4111 1111 1111 1111");
+  expect(beforeOtp).not.toContain('"cvv"');
+  for (const [index, digit] of [..."123456"].entries())
+    await page.getByLabel(`OTP digit ${index + 1}`).fill(digit);
+  await page.getByRole("button", { name: "Verify OTP" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Payment Successful" }),
+  ).toBeVisible();
+  await expect(page.getByText(/CST-PAY-\d{8}-[A-F0-9]{4}/)).toBeVisible();
+  const afterPayment = await page.evaluate(
+    () => localStorage.getItem("constat.purchase-requests.v1") ?? "",
+  );
+  expect(afterPayment).not.toContain("4111111111111111");
+  expect(afterPayment).not.toContain('"cvv"');
+  expect(afterPayment).not.toContain('"otp"');
+  expect(afterPayment).toContain('"paymentStatus":"payment_successful"');
   await page.reload();
+  await expect(
+    page.getByRole("heading", { name: "Payment Successful" }),
+  ).toBeVisible();
   await login(page);
   await page.goto("/purchase-requests");
   const row = page
     .locator("tbody tr")
     .filter({ hasText: "Build Right Constructions" });
   await expect(row).toContainText("Ravi Kumar");
+  await expect(row).toContainText("Payment Successful");
   await row
     .getByLabel("Status for Build Right Constructions")
     .selectOption("contacted");
@@ -275,7 +331,7 @@ test("public and protected layouts fit phone, tablet and desktop", async ({
 }) => {
   for (const width of [375, 390, 430, 768, 1440]) {
     await page.setViewportSize({ width, height: 900 });
-    for (const path of ["/", "/login", "/signup", "/buy", "/buy/checkout"]) {
+    for (const path of ["/", "/login", "/signup", "/buy", "/buy/payment"]) {
       await page.goto(path);
       expect(
         await page.evaluate(

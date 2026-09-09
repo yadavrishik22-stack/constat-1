@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { newId } from "./id";
 import {
+  CONSTAT_SETUP_AMOUNT,
   PurchaseForm,
   PurchaseRequest,
   purchaseFormSchema,
@@ -58,6 +59,11 @@ export class PurchaseRequestRepository {
     const request: PurchaseRequest = {
       ...form,
       projectCount: form.projectCount ?? null,
+      notes: "",
+      amount: CONSTAT_SETUP_AMOUNT,
+      paymentStatus: "pending_payment",
+      transactionReference: null,
+      paidAt: null,
       id: newId(),
       status: "new",
       createdAt: stamp,
@@ -65,6 +71,25 @@ export class PurchaseRequestRepository {
     };
     this.commit([...this.requests, request]);
     return request;
+  }
+
+  completeDemoPayment(id: string, transactionReference: string) {
+    if (!this.requests.some((request) => request.id === id))
+      throw new Error("Purchase request not found.");
+    const stamp = new Date().toISOString();
+    this.commit(
+      this.requests.map((request) =>
+        request.id === id
+          ? {
+              ...request,
+              paymentStatus: "payment_successful" as const,
+              transactionReference,
+              paidAt: stamp,
+              updatedAt: stamp,
+            }
+          : request,
+      ),
+    );
   }
 
   setStatus(id: string, status: PurchaseRequest["status"]) {

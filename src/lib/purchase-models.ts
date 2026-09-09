@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+export const CONSTAT_SETUP_AMOUNT = 25999;
+
 export const purchaseRequestSchema = z.object({
   id: z.string().min(1),
   companyName: z.string().trim().min(2).max(120),
@@ -10,7 +12,13 @@ export const purchaseRequestSchema = z.object({
     .trim()
     .regex(/^[+\d][\d\s()-]{7,19}$/, "Enter a valid phone number."),
   projectCount: z.number().int().min(1).max(1000).nullable(),
-  notes: z.string().trim().max(1000),
+  notes: z.string().trim().max(1000).default(""),
+  amount: z.number().int().positive().default(CONSTAT_SETUP_AMOUNT),
+  paymentStatus: z
+    .enum(["pending_payment", "payment_successful"])
+    .default("pending_payment"),
+  transactionReference: z.string().min(1).nullable().default(null),
+  paidAt: z.string().nullable().default(null),
   status: z.enum(["new", "contacted", "closed"]),
   createdAt: z.string(),
   updatedAt: z.string(),
@@ -22,7 +30,6 @@ export const purchaseFormSchema = purchaseRequestSchema
     fullName: true,
     email: true,
     phone: true,
-    notes: true,
   })
   .extend({
     projectCount: z.preprocess(

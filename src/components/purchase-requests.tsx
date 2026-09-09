@@ -3,7 +3,7 @@
 import { toast } from "sonner";
 import { useStore } from "./store";
 import { Badge, PageHeading, Table } from "./ui";
-import { displayDate } from "@/lib/format";
+import { displayDate, money } from "@/lib/format";
 import { PurchaseRequest } from "@/lib/purchase-models";
 
 export function PurchaseRequestsPage() {
@@ -47,12 +47,28 @@ export function PurchaseRequestsPage() {
             ),
           },
           { title: "Phone", render: (r) => r.phone },
+          { title: "Amount", render: (r) => money(r.amount) },
+          {
+            title: "Payment",
+            render: (r) => (
+              <div>
+                <Badge>
+                  {r.paymentStatus === "payment_successful"
+                    ? "Payment Successful"
+                    : "Pending Payment"}
+                </Badge>
+                {r.transactionReference && (
+                  <small className="cell-sub">{r.transactionReference}</small>
+                )}
+              </div>
+            ),
+          },
           {
             title: "Submitted",
             render: (r) => displayDate(r.createdAt.slice(0, 10)),
           },
           {
-            title: "Status",
+            title: "Setup Status",
             render: (r) => (
               <select
                 aria-label={`Status for ${r.companyName}`}
@@ -79,7 +95,6 @@ export function PurchaseRequestsPage() {
               </select>
             ),
           },
-          { title: "Notes", render: (r) => r.notes || <Badge>None</Badge> },
         ]}
       />
     </>
