@@ -81,29 +81,37 @@ test("landing navigation, mobile branding, reduced motion and login/logout", asy
   ).toBe("none");
 });
 
-test("custom hero, pricing and purchase request flow work without a stock hero image", async ({
+test("light hero and deliberate two-click pricing flow record a purchase request", async ({
   page,
 }) => {
   await page.goto("/");
   await expect(
     page.getByRole("heading", { name: /Construction tracking/ }),
   ).toBeVisible();
-  await expect(page.locator(".hero-graphic")).toBeVisible();
-  await expect(page.locator(".landing-hero img")).toHaveCount(0);
-  await expect(page.getByText("₹25,999").first()).toBeVisible();
+  await expect(page.locator(".simple-hero-graphic").first()).toBeVisible();
+  await expect(page.locator(".light-hero img")).toHaveCount(0);
+  await expect(page.getByText("₹25,999")).toHaveCount(0);
   await page
-    .getByRole("link", { name: "Buy Now", exact: true })
+    .getByRole("link", { name: "Buy ConStat", exact: true })
     .first()
     .click();
   await expect(page).toHaveURL(/buy$/);
+  await expect(page.getByText("₹25,999")).toHaveCount(0);
+  await expect(
+    page.getByText("Manage multiple construction sites"),
+  ).toBeVisible();
+  await page.getByRole("link", { name: "View Pricing" }).click();
+  await expect(page).toHaveURL(/buy\/pricing$/);
   await expect(page.getByText("₹25,999")).toBeVisible();
+  await page.getByRole("link", { name: "Get Started" }).click();
+  await expect(page).toHaveURL(/buy\/request$/);
   await page.getByLabel("Company Name").fill("Build Right Constructions");
   await page.getByLabel("Full Name").fill("Ravi Kumar");
   await page.getByLabel("Email", { exact: false }).fill("ravi@example.com");
-  await page.getByLabel("Phone Number").fill("+91 98765 43210");
-  await page.getByLabel("Number of Projects / Sites").fill("3");
-  await page.getByLabel("Notes (optional)").fill("Three active sites");
-  await page.getByRole("button", { name: "Request Setup" }).click();
+  await page.getByLabel("Phone", { exact: false }).fill("+91 98765 43210");
+  await page.getByLabel("Number of Construction Sites").fill("3");
+  await page.getByLabel("Optional Message").fill("Three active sites");
+  await page.getByRole("button", { name: "Request ConStat Setup" }).click();
   await expect(page.getByRole("heading", { name: "Thank you." })).toBeVisible();
   await page.reload();
   await login(page);
@@ -242,9 +250,16 @@ test("rejection blocks entry and signup validates duplicate identity and confirm
 test("public and protected layouts fit phone, tablet and desktop", async ({
   page,
 }) => {
-  for (const width of [320, 390, 768, 1440]) {
+  for (const width of [375, 390, 430, 768, 1440]) {
     await page.setViewportSize({ width, height: 900 });
-    for (const path of ["/", "/login", "/signup", "/buy"]) {
+    for (const path of [
+      "/",
+      "/login",
+      "/signup",
+      "/buy",
+      "/buy/pricing",
+      "/buy/request",
+    ]) {
       await page.goto(path);
       expect(
         await page.evaluate(

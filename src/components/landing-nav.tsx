@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
-import { Menu, X, ArrowUpRight } from "lucide-react";
+import { Menu, X, ArrowRight } from "lucide-react";
 import { PublicBrand } from "./public-brand";
 export function LandingNav() {
   const [open, setOpen] = useState(false);
@@ -22,16 +22,16 @@ export function LandingNav() {
         className={open ? "open" : ""}
         aria-label="Public navigation"
       >
+        <Link href="/" onClick={() => setOpen(false)}>
+          Home
+        </Link>
         <a href="#features" onClick={() => setOpen(false)}>
           Features
-        </a>
-        <a href="#pricing" onClick={() => setOpen(false)}>
-          Pricing
         </a>
         <Link href="/login">Login</Link>
         <Link href="/signup">Sign Up</Link>
         <Link href="/buy" className="btn btn-primary">
-          Buy Now <ArrowUpRight size={16} />
+          Buy ConStat <ArrowRight size={16} />
         </Link>
       </nav>
     </header>

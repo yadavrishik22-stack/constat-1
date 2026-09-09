@@ -1,67 +1,46 @@
-const modules = [
-  "Diesel",
-  "Labour",
-  "Materials",
-  "Stores",
-  "Accounts",
-  "Issues",
-];
-
 export function HeroGraphic() {
   return (
     <div
-      className="hero-graphic"
-      aria-label="ConStat construction operations graphic"
+      className="simple-hero-graphic"
+      aria-label="Construction site and statistics illustration"
     >
-      <div className="graphic-glow" />
       <svg
-        className="site-line-art"
-        viewBox="0 0 900 520"
+        className="simple-site-drawing"
+        viewBox="0 0 720 420"
         role="img"
-        aria-label="Abstract crane and construction structure"
+        aria-label="Line drawing of a crane and building under construction"
       >
-        <g fill="none" stroke="currentColor" strokeWidth="1.2">
-          <path d="M65 390H835M120 390V214H420V390M160 390V254H385V390M445 390V165H765V390M486 390V215H724V390" />
-          <path d="M90 214H450M136 254H408M445 165H790M475 215H742" />
-          <path d="M185 214V390M250 214V390M315 214V390M520 165V390M595 165V390M670 165V390" />
-          <path d="M185 214L250 254L315 214L385 254M486 215L595 165L724 215M445 165L595 96V390M595 96H824M595 96L670 126M824 96L770 122" />
-          <path d="M112 390L85 456H805L778 390M104 414H787M96 436H796" />
-          <path d="M612 96V66M625 66H580M580 66V82" />
+        <g
+          fill="none"
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M88 346h548M145 346V205h260v141M184 346V240h183v106" />
+          <path d="M145 205h285M184 240h183M222 205v141M290 205v141M358 205v141" />
+          <path d="M222 205l68 35 68-35M184 240l38 32 68-32 68 32" />
+          <path d="M450 346V116M450 116h186M450 116l-88 89M486 116l-36-29M636 116l-47 26" />
+          <path d="M466 87h-32M434 87v29M145 346l-26 43h442l-24-43M132 369h416" />
         </g>
       </svg>
-      <div className="graphic-frame">
-        <span className="frame-index">CS / 01</span>
-        <span className="frame-status">
-          <i /> SITE OPERATIONS LIVE
-        </span>
-        <div className="graphic-wordmark">
-          <span className="wordmark-rule" />
-          <strong>CONSTAT</strong>
-          <small>CONSTRUCTION STATISTICS TRACKER</small>
-        </div>
-        <div className="module-chips">
-          {modules.map((module) => (
-            <span key={module}>{module}</span>
-          ))}
-        </div>
-        <div className="graphic-stat stat-one">
-          <small>WORKFORCE</small>
-          <strong>67</strong>
-          <span>ON SITE</span>
-        </div>
-        <div className="graphic-stat stat-two">
-          <small>DIESEL</small>
-          <strong>142 L</strong>
-          <span>TODAY</span>
-        </div>
-        <div className="graphic-bars" aria-hidden="true">
-          <i />
-          <i />
-          <i />
-          <i />
-          <i />
-          <i />
-        </div>
+      <div className="simple-indicator indicator-diesel">
+        <span>Diesel</span>
+        <strong>142 L</strong>
+      </div>
+      <div className="simple-indicator indicator-workforce">
+        <span>Workforce</span>
+        <strong>67</strong>
+      </div>
+      <div className="simple-indicator indicator-materials">
+        <span>Materials</span>
+        <strong>Updated</strong>
+      </div>
+      <div className="simple-chart" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+        <span />
+        <span />
       </div>
     </div>
   );
