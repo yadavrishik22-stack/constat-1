@@ -108,4 +108,4 @@ Accounts, memberships and requests live in independently versioned `constat.acco
 
 Purchase intent submissions are stored separately under `constat.purchase-requests.v1`. `/buy` records the customer's essential contact details, then `/buy/payment` runs a clearly labeled card and OTP simulation before storing only the safe payment status and generated reference. Card number, CVV and OTP are never persisted or exported. Super Admin can review payment and setup status under Purchase Requests. This demo does not charge money, send email/SMS or send data across devices; a server-side payment provider such as Razorpay can replace `DemoPaymentProvider` later.
 
-Landing photo attribution: [Jan Huber / Unsplash](public/images/landing/ATTRIBUTION.md). Animation respects reduced motion.
+Public crane/building asset notes: [ATTRIBUTION.md](public/images/landing/ATTRIBUTION.md). Animation respects reduced motion.
