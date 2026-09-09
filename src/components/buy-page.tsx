@@ -13,21 +13,12 @@ import { Button, Field } from "./ui";
 type FormValues = z.input<typeof purchaseFormSchema>;
 
 const benefits = [
-  "Manage multiple construction sites",
-  "Track site workforce",
-  "Track diesel and machinery",
-  "Track materials and stores",
-  "Record site expenses",
-  "Monitor daily work and issues",
-];
-
-const included = [
-  "Company workspace",
-  "Project and site management",
-  "Employee access",
-  "Construction statistics dashboard",
-  "Daily operational records",
-  "Admin controls",
+  "Multiple construction sites",
+  "Workforce and attendance",
+  "Diesel and machinery",
+  "Materials and inventory",
+  "Site expenses",
+  "Daily work and issues",
 ];
 
 function BuyHeader() {
@@ -45,80 +36,27 @@ export function BuyPage() {
   return (
     <main className="buy-page light-buy-page" id="main-content">
       <BuyHeader />
-      <div className="buy-overview">
+      <div className="buy-overview compact-buy-overview">
         <section className="buy-overview-copy">
           <span className="eyebrow">GET CONSTAT</span>
-          <h1>Get ConStat for your construction company.</h1>
-          <p>One simple system for daily site operations.</p>
+          <h1>One simple system for your construction company.</h1>
+          <p>
+            Keep daily site operations organized and see every project clearly.
+          </p>
+        </section>
+        <section className="included-card">
+          <span className="eyebrow">WHAT CONSTAT TRACKS</span>
+          <h2>Your complete site workspace.</h2>
           <ul>
             {benefits.map((item) => (
               <li key={item}>
-                <Check size={17} />
+                <Check size={15} />
                 {item}
               </li>
             ))}
           </ul>
-        </section>
-        <section className="included-card">
-          <span className="eyebrow">WHAT&apos;S INCLUDED</span>
-          <h2>Your complete site workspace.</h2>
-          <ul>
-            {included.map((item) => (
-              <li key={item}>
-                <span />
-                {item}
-              </li>
-            ))}
-          </ul>
-          <Link href="/buy/pricing" className="btn btn-primary">
-            View Pricing <ArrowRight size={18} />
-          </Link>
-          <small>See the one-time ConStat setup price on the next page.</small>
-        </section>
-      </div>
-    </main>
-  );
-}
-
-export function PricingPage() {
-  return (
-    <main className="buy-page light-buy-page" id="main-content">
-      <BuyHeader />
-      <div className="simple-pricing-layout">
-        <div className="pricing-page-intro">
-          <span className="eyebrow">CONSTAT PRICING</span>
-          <h1>
-            One setup.
-            <br />
-            One clear price.
-          </h1>
-          <p>No multiple plans or confusing options.</p>
-        </div>
-        <section className="simple-pricing-card">
-          <PublicBrand />
-          <p>Construction Statistics Tracker</p>
-          <strong>₹25,999</strong>
-          <span>One ConStat setup for your construction company.</span>
-          <ul>
-            {[
-              "Company workspace",
-              "Multiple project and site support",
-              "Admin controls",
-              "Employee access",
-              "Site statistics",
-              "Operational tracking",
-            ].map((item) => (
-              <li key={item}>
-                <Check size={16} />
-                {item}
-              </li>
-            ))}
-          </ul>
-          <Link href="/buy/request" className="btn btn-primary">
-            Get Started <ArrowRight size={18} />
-          </Link>
-          <Link href="/buy" className="btn btn-secondary">
-            Back
+          <Link href="/buy/checkout" className="btn btn-primary">
+            Continue to Checkout <ArrowRight size={18} />
           </Link>
         </section>
       </div>
@@ -126,7 +64,7 @@ export function PricingPage() {
   );
 }
 
-export function PurchaseRequestPage() {
+export function CheckoutPage() {
   const { purchases } = useStore();
   const [complete, setComplete] = useState(false);
   const [submitError, setSubmitError] = useState("");
@@ -160,36 +98,44 @@ export function PurchaseRequestPage() {
   return (
     <main className="buy-page light-buy-page" id="main-content">
       <BuyHeader />
-      <div className="request-layout">
-        <section className="request-intro">
-          <span className="eyebrow">REQUEST CONSTAT</span>
-          <h1>Let&apos;s set up your company.</h1>
-          <p>Share your details and number of construction sites.</p>
-          <Link href="/buy/pricing" className="back-home">
-            <ArrowLeft size={15} /> Back to Pricing
-          </Link>
+      <div className="checkout-layout">
+        <section className="checkout-summary">
+          <span className="eyebrow">CONSTAT SETUP</span>
+          <h1>Start with ConStat.</h1>
+          <strong className="checkout-price">₹25,999</strong>
+          <p>One ConStat setup for your construction company.</p>
+          <ul>
+            {[
+              "Company workspace",
+              "Multiple project support",
+              "Admin and employee access",
+              "Operational tracking",
+            ].map((item) => (
+              <li key={item}>
+                <Check size={16} /> {item}
+              </li>
+            ))}
+          </ul>
         </section>
-        <section className="buy-form-card">
+
+        <section className="buy-form-card checkout-form-card">
           {complete ? (
             <div className="purchase-success" role="status">
               <CheckCircle2 size={38} />
               <span className="eyebrow">REQUEST RECORDED</span>
               <h2>Thank you.</h2>
               <p>
-                Your ConStat setup request has been recorded in this browser.
+                Your ConStat setup request has been recorded. Our team will
+                contact you shortly.
               </p>
-              <div className="inline-actions">
-                <Link href="/signup" className="btn btn-primary">
-                  Create Account <ArrowRight size={17} />
-                </Link>
-                <Link href="/" className="btn btn-secondary">
-                  Return Home
-                </Link>
-              </div>
+              <Link href="/" className="btn btn-primary">
+                Return Home <ArrowRight size={17} />
+              </Link>
             </div>
           ) : (
             <>
-              <h2>Your details</h2>
+              <span className="eyebrow">YOUR DETAILS</span>
+              <h2>Request your setup</h2>
               <form onSubmit={handleSubmit(submit)} noValidate>
                 <Field
                   label="Company Name"
@@ -197,6 +143,7 @@ export function PurchaseRequestPage() {
                   error={errors.companyName?.message}
                 >
                   <input
+                    placeholder="Enter company name"
                     autoComplete="organization"
                     {...register("companyName")}
                   />
@@ -206,26 +153,40 @@ export function PurchaseRequestPage() {
                   required
                   error={errors.fullName?.message}
                 >
-                  <input autoComplete="name" {...register("fullName")} />
+                  <input
+                    placeholder="Enter your full name"
+                    autoComplete="name"
+                    {...register("fullName")}
+                  />
                 </Field>
                 <div className="buy-form-row">
-                  <Field label="Phone" required error={errors.phone?.message}>
+                  <Field
+                    label="Phone Number"
+                    required
+                    error={errors.phone?.message}
+                  >
                     <input
                       type="tel"
+                      placeholder="Enter phone number"
                       autoComplete="tel"
                       {...register("phone")}
                     />
                   </Field>
-                  <Field label="Email" required error={errors.email?.message}>
+                  <Field
+                    label="Email Address"
+                    required
+                    error={errors.email?.message}
+                  >
                     <input
                       type="email"
+                      placeholder="Enter email address"
                       autoComplete="email"
                       {...register("email")}
                     />
                   </Field>
                 </div>
                 <Field
-                  label="Number of Construction Sites"
+                  label="Number of Sites / Projects"
                   error={errors.projectCount?.message}
                 >
                   <input
@@ -233,11 +194,16 @@ export function PurchaseRequestPage() {
                     min="1"
                     max="1000"
                     inputMode="numeric"
+                    placeholder="e.g. 3"
                     {...register("projectCount")}
                   />
                 </Field>
-                <Field label="Optional Message" error={errors.notes?.message}>
-                  <textarea rows={3} {...register("notes")} />
+                <Field label="Notes (optional)" error={errors.notes?.message}>
+                  <textarea
+                    rows={3}
+                    placeholder="Any specific requirement (optional)"
+                    {...register("notes")}
+                  />
                 </Field>
                 {submitError && (
                   <p className="error-message" role="alert">

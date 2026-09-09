@@ -81,7 +81,7 @@ test("landing navigation, mobile branding, reduced motion and login/logout", asy
   ).toBe("none");
 });
 
-test("light hero and deliberate two-click pricing flow record a purchase request", async ({
+test("crane hero and short checkout flow record a purchase request", async ({
   page,
 }) => {
   await page.goto("/");
@@ -89,6 +89,8 @@ test("light hero and deliberate two-click pricing flow record a purchase request
     page.getByRole("heading", { name: /Construction tracking/ }),
   ).toBeVisible();
   await expect(page.locator(".simple-hero-graphic").first()).toBeVisible();
+  await expect(page.locator(".crane-lines").first()).toBeVisible();
+  await expect(page.locator(".building-lines").first()).toBeVisible();
   await expect(page.locator(".light-hero img")).toHaveCount(0);
   await expect(page.getByText("₹25,999")).toHaveCount(0);
   await page
@@ -98,19 +100,17 @@ test("light hero and deliberate two-click pricing flow record a purchase request
   await expect(page).toHaveURL(/buy$/);
   await expect(page.getByText("₹25,999")).toHaveCount(0);
   await expect(
-    page.getByText("Manage multiple construction sites"),
+    page.getByText("Multiple construction sites"),
   ).toBeVisible();
-  await page.getByRole("link", { name: "View Pricing" }).click();
-  await expect(page).toHaveURL(/buy\/pricing$/);
+  await page.getByRole("link", { name: "Continue to Checkout" }).click();
+  await expect(page).toHaveURL(/buy\/checkout$/);
   await expect(page.getByText("₹25,999")).toBeVisible();
-  await page.getByRole("link", { name: "Get Started" }).click();
-  await expect(page).toHaveURL(/buy\/request$/);
   await page.getByLabel("Company Name").fill("Build Right Constructions");
   await page.getByLabel("Full Name").fill("Ravi Kumar");
-  await page.getByLabel("Email", { exact: false }).fill("ravi@example.com");
-  await page.getByLabel("Phone", { exact: false }).fill("+91 98765 43210");
-  await page.getByLabel("Number of Construction Sites").fill("3");
-  await page.getByLabel("Optional Message").fill("Three active sites");
+  await page.getByLabel("Email Address").fill("ravi@example.com");
+  await page.getByLabel("Phone Number").fill("+91 98765 43210");
+  await page.getByLabel("Number of Sites / Projects").fill("3");
+  await page.getByLabel("Notes (optional)").fill("Three active sites");
   await page.getByRole("button", { name: "Request ConStat Setup" }).click();
   await expect(page.getByRole("heading", { name: "Thank you." })).toBeVisible();
   await page.reload();
@@ -252,14 +252,7 @@ test("public and protected layouts fit phone, tablet and desktop", async ({
 }) => {
   for (const width of [375, 390, 430, 768, 1440]) {
     await page.setViewportSize({ width, height: 900 });
-    for (const path of [
-      "/",
-      "/login",
-      "/signup",
-      "/buy",
-      "/buy/pricing",
-      "/buy/request",
-    ]) {
+    for (const path of ["/", "/login", "/signup", "/buy", "/buy/checkout"]) {
       await page.goto(path);
       expect(
         await page.evaluate(

@@ -27,9 +27,8 @@ The end-to-end suite expects a running local server at port 3000 and installed G
 
 - `/`: public construction landing page
 - `/login`, `/signup`, `/account-status`: local account workflows
-- `/buy`: product overview without pricing
-- `/buy/pricing`: one ConStat offering at ₹25,999
-- `/buy/request`: locally persisted setup-request form
+- `/buy`: short product overview without pricing
+- `/buy/checkout`: ₹25,999 setup summary and locally persisted request form
 - `/dashboard`: authorized project dashboard, date filters, diesel and workforce charts, material stock
 - `/users`: Super Admin approvals, employees, site grants/revocations and requests
 - `/purchase-requests`: Super Admin view of locally submitted purchase requests
@@ -107,6 +106,6 @@ Use the same browser for the entire flow: sign up → pending status → log in 
 
 Accounts, memberships and requests live in independently versioned `constat.accounts.v1`; the session uses `constat.session.v1`. Existing operational data is retained and never reset by account setup. Data Management operational imports/resets preserve accounts and access history. Signup passwords use salted PBKDF2 through Web Crypto; public snapshots exclude hashes. These are browser-local simulations, NOT production security: DevTools can bypass them. Accounts/approvals do not sync between devices. HTTPS or localhost is required for Web Crypto (plain HTTP LAN phone login is not supported).
 
-Purchase intent submissions are stored separately under `constat.purchase-requests.v1`. The public journey explains the product at `/buy`, reveals ₹25,999 at `/buy/pricing`, then records a request at `/buy/request`; Super Admin can review and update its status under Purchase Requests. This is a frontend beta inbox and does not submit a payment or send data to ConStat across devices.
+Purchase intent submissions are stored separately under `constat.purchase-requests.v1`. The public journey explains the product at `/buy`, then reveals ₹25,999 and records the request at `/buy/checkout`; Super Admin can review and update its status under Purchase Requests. This is a frontend beta inbox and does not submit a payment or send data to ConStat across devices.
 
 Landing photo attribution: [Jan Huber / Unsplash](public/images/landing/ATTRIBUTION.md). Animation respects reduced motion.
