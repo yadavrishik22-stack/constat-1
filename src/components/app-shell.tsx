@@ -24,6 +24,7 @@ import {
   CircleAlert,
   Weight,
   Boxes,
+  ShoppingBag,
 } from "lucide-react";
 import { useStore } from "./store";
 import { Dashboard, InventoryPage } from "./dashboard";
@@ -31,11 +32,14 @@ import { RecordsPage } from "./records";
 import { AttendancePage } from "./attendance";
 import { DataManagement, ProjectsPage } from "./management";
 import { OperationsModule } from "./operations";
+import { AccountMenu } from "./account-menu";
+import { MySites, UserManagement } from "./site-access";
+import { PurchaseRequestsPage } from "./purchase-requests";
 import { Empty } from "./ui";
 const groups = [
   {
     label: "",
-    items: [{ href: "/", label: "Dashboard", icon: LayoutDashboard }],
+    items: [{ href: "/dashboard", label: "Dashboard", icon: LayoutDashboard }],
   },
   {
     label: "MACHINERY",
@@ -73,14 +77,20 @@ const groups = [
   {
     label: "WORKSPACE",
     items: [
+      { href: "/my-sites", label: "My Sites", icon: Building2 },
+      { href: "/users", label: "User Management", icon: Users },
+      {
+        href: "/purchase-requests",
+        label: "Purchase Requests",
+        icon: ShoppingBag,
+      },
       { href: "/projects", label: "Projects", icon: FolderKanban },
       { href: "/data", label: "Data Management", icon: Database },
     ],
   },
 ];
 export function AppShell() {
-  const { db, ready, error, selection, selectWorkspace, role, setRole } =
-    useStore();
+  const { db, ready, error, selection, selectWorkspace, role } = useStore();
   const pathname = usePathname();
   const { companyId: selectedCompany, projectId: selectedProject } = selection;
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -109,9 +119,15 @@ export function AppShell() {
     );
   const props = { projectId, companyId };
   const content =
-    pathname === "/data" ? (
+    pathname === "/purchase-requests" && role === "Super Admin" ? (
+      <PurchaseRequestsPage />
+    ) : pathname === "/users" && role === "Super Admin" ? (
+      <UserManagement />
+    ) : pathname === "/my-sites" ? (
+      <MySites />
+    ) : pathname === "/data" && role === "Super Admin" ? (
       <DataManagement />
-    ) : pathname === "/projects" ? (
+    ) : pathname === "/projects" && role === "Super Admin" ? (
       <ProjectsPage
         {...props}
         onSelectCompany={selectCompany}
@@ -119,15 +135,26 @@ export function AppShell() {
       />
     ) : !projectId ? (
       <Empty
-        title="Create your first project"
-        description="Add a company and construction site to start tracking operations."
+        title={
+          role === "Employee"
+            ? "No construction sites assigned yet"
+            : "Create your first project"
+        }
+        description={
+          role === "Employee"
+            ? "You can request access to a construction site or contact your administrator."
+            : "Add a company and construction site to start tracking operations."
+        }
         action={
-          <Link className="btn btn-primary" href="/projects">
-            Set up a project
+          <Link
+            className="btn btn-primary"
+            href={role === "Employee" ? "/my-sites" : "/projects"}
+          >
+            {role === "Employee" ? "View Available Sites" : "Set up a project"}
           </Link>
         }
       />
-    ) : pathname === "/" ? (
+    ) : pathname === "/dashboard" ? (
       <Dashboard projectId={projectId} />
     ) : pathname === "/inventory" ? (
       <InventoryPage projectId={projectId} />
@@ -158,7 +185,7 @@ export function AppShell() {
     ) : (
       <Empty
         title="Page not found"
-        action={<Link href="/">Go to dashboard</Link>}
+        action={<Link href="/dashboard">Go to dashboard</Link>}
       />
     );
   return (
@@ -171,7 +198,7 @@ export function AppShell() {
         />
       )}
       <aside className={`sidebar ${mobileOpen ? "is-open" : ""}`}>
-        <Link href="/" className="brand">
+        <Link href="/dashboard" className="brand">
           <div className="logo-mark">
             C<span />
           </div>
@@ -196,21 +223,32 @@ export function AppShell() {
           {groups.map((g) => (
             <div className="nav-group" key={g.label}>
               {g.label && <span className="nav-group-label">{g.label}</span>}
-              {g.items.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setMobileOpen(false)}
-                  className={
-                    pathname === item.href ? "nav-link active" : "nav-link"
-                  }
-                  aria-current={pathname === item.href ? "page" : undefined}
-                >
-                  <item.icon size={18} />
-                  {item.label}
-                  {pathname === item.href && <ChevronRight size={14} />}
-                </Link>
-              ))}
+              {g.items
+                .filter(
+                  (item) =>
+                    role === "Super Admin" ||
+                    ![
+                      "/users",
+                      "/purchase-requests",
+                      "/projects",
+                      "/data",
+                    ].includes(item.href),
+                )
+                .map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setMobileOpen(false)}
+                    className={
+                      pathname === item.href ? "nav-link active" : "nav-link"
+                    }
+                    aria-current={pathname === item.href ? "page" : undefined}
+                  >
+                    <item.icon size={18} />
+                    {item.label}
+                    {pathname === item.href && <ChevronRight size={14} />}
+                  </Link>
+                ))}
             </div>
           ))}
         </nav>
@@ -237,7 +275,7 @@ export function AppShell() {
               <Menu size={21} />
             </button>
             <Link
-              href="/"
+              href="/dashboard"
               className="mobile-header-brand"
               aria-label="ConStat dashboard"
             >
@@ -258,25 +296,7 @@ export function AppShell() {
             </strong>
           </div>
           <div className="topbar-right">
-            <label className="role-switcher">
-              <span>View as · testing only</span>
-              <select
-                aria-label="Testing role"
-                title="Local testing only — not authentication or security"
-                value={role}
-                onChange={(e) =>
-                  setRole(e.target.value as "Super Admin" | "Employee")
-                }
-              >
-                <option>Super Admin</option>
-                <option>Employee</option>
-              </select>
-            </label>
-            <span className="local-status">
-              <span />
-              Saved locally
-            </span>
-            <div className="profile-avatar">CS</div>
+            <AccountMenu />
           </div>
         </header>
         <div className="project-bar">
@@ -312,9 +332,11 @@ export function AppShell() {
               ))}
             </select>
           </label>
-          <Link href="/projects" className="manage-projects">
-            Manage projects <ChevronRight size={14} />
-          </Link>
+          {role === "Super Admin" && (
+            <Link href="/projects" className="manage-projects">
+              Manage projects <ChevronRight size={14} />
+            </Link>
+          )}
         </div>
         <main key={`${pathname}:${projectId}:${role}`} id="main-content">
           {error && (

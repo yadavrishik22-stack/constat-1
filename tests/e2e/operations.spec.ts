@@ -1,4 +1,8 @@
 import { test, expect, Page } from "@playwright/test";
+import { login } from "./helpers";
+test.beforeEach(async ({ page }) => {
+  await login(page);
+});
 const png = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aF9sAAAAASUVORK5CYII=",
   "base64",
@@ -115,7 +119,7 @@ test("steel shares inventory and concrete updates its area dashboard through CRU
       .filter({ hasText: "Concrete today" })
       .locator("strong"),
   ).toHaveText("30 m³");
-  await go(page, "/");
+  await go(page, "/dashboard");
   await expect(
     page
       .locator(".stat")
@@ -154,7 +158,23 @@ test("store admin and employee workflows preserve three owned pumps after two ar
     "Total owned quantity": "3",
   });
   await save(page);
-  await page.getByLabel("Testing role").selectOption("Employee");
+  const siteId = await page
+    .getByLabel("Current project", { exact: true })
+    .inputValue();
+  await page.goto("/users");
+  await page.getByRole("tab", { name: "Site Access", exact: true }).click();
+  await page
+    .locator("tbody tr")
+    .filter({ hasText: "siteemployee" })
+    .getByRole("button", { name: "Manage Site Access" })
+    .click();
+  await page.getByRole("dialog").getByLabel("Operations Test").check();
+  await page.getByRole("button", { name: "Save Access", exact: true }).click();
+  await login(page, "siteemployee", "Employee@123");
+  await page
+    .getByLabel("Current project", { exact: true })
+    .selectOption(siteId);
+  await go(page, "/stores");
   await page
     .getByRole("button", { name: "Add Store Usage", exact: true })
     .first()
@@ -187,7 +207,8 @@ test("store admin and employee workflows preserve three owned pumps after two ar
   await save(page, true);
   await expect(page.locator("tbody")).toContainText("No");
   await remove(page, "Test Water Pump");
-  await page.getByLabel("Testing role").selectOption("Super Admin");
+  await login(page);
+  await go(page, "/stores");
   await page.getByRole("tab", { name: "Inventory", exact: true }).click();
   await remove(page, "Test Water Pump");
 });
@@ -315,7 +336,7 @@ test("site issues resolve and update dashboard counts with photo and project iso
   await expect(
     page.locator(".stat").filter({ hasText: "Open issues" }).locator("strong"),
   ).toHaveText("1");
-  await go(page, "/");
+  await go(page, "/dashboard");
   await expect(
     page
       .locator(".stat")

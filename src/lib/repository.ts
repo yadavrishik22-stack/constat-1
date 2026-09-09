@@ -1,6 +1,7 @@
+import type { Access } from "./auth-models";
 import { migrateDatabase } from "./migrations";
 import { projectCollections, validateOperations } from "./operations-integrity";
-import { canWrite, TestingRole } from "./permissions";
+import { canWrite } from "./permissions";
 import { newId } from "./id";
 import { addProjectDefaults } from "./project-defaults";
 import { today } from "./format";
@@ -80,20 +81,82 @@ export function validateDatabase(input: unknown): Database {
   return db;
 }
 export class Repository {
-  private role: TestingRole = "Super Admin";
-  setRole(role: TestingRole) {
-    this.role = role;
+  private access: () => Access = () => null;
+  setAccessProvider(provider: () => Access) {
+    this.access = provider;
+    this.refreshAccess();
   }
   private assertWrite(collection: Collection) {
-    if (!canWrite(this.role, collection))
+    const access = this.access();
+    if (!access || !canWrite(access.role, collection))
       throw new Error(
-        "Switch to Super Admin to configure master data. This is a local testing role.",
+        "Only an approved Super Admin can configure master data.",
       );
+  }
+  private assertProject(projectId: string) {
+    const access = this.access();
+    if (
+      !access ||
+      (access.role !== "Super Admin" && !access.projectIds.includes(projectId))
+    )
+      throw new Error("You do not have access to this construction site.");
+  }
+  private assertRecord(record: RecordFor<Collection>) {
+    if ("projectId" in record) this.assertProject(record.projectId);
+  }
+  private visible: Database = emptyDatabase();
+  refreshAccess = () => {
+    this.projectSnapshot();
+    this.emit();
+  };
+  private projectSnapshot() {
+    const access = this.access();
+    if (!access) {
+      this.visible = emptyDatabase();
+      return;
+    }
+    if (access.role === "Super Admin") {
+      this.visible = this.db;
+      return;
+    }
+    const ids = new Set(access.projectIds);
+    const next = { ...this.db };
+    next.projects = this.db.projects.filter((p) => ids.has(p.id));
+    next.companies = this.db.companies.filter((c) =>
+      next.projects.some((p) => p.companyId === c.id),
+    );
+    const filter = <K extends (typeof projectCollections)[number]>(key: K) => {
+      next[key] = this.db[key].filter((r) =>
+        ids.has(r.projectId),
+      ) as Database[K];
+    };
+    for (const key of projectCollections) filter(key);
+    this.visible = next;
+  }
+  // Deliberately minimal discovery catalogue: no location, costs, records or statistics.
+  getSiteDirectory() {
+    return this.access()
+      ? this.db.projects.map(({ id, name, siteName }) => ({
+          id,
+          name,
+          siteName,
+        }))
+      : [];
+  }
+  projectExists(id: string) {
+    return this.db.projects.some((p) => p.id === id);
+  }
+  initialDemoProjectId() {
+    return (
+      this.db.projects.find((p) => p.id === "project-demo")?.id ??
+      this.db.projects[0]?.id ??
+      ""
+    );
   }
   private db: Database = emptyDatabase();
   private listeners = new Set<() => void>();
   constructor(private storage: StorageAdapter) {}
-  getSnapshot = () => this.db;
+  getSnapshot = () => this.visible;
   subscribe = (listener: () => void) => {
     this.listeners.add(listener);
     return () => {
@@ -101,11 +164,13 @@ export class Repository {
     };
   };
   private emit() {
+    this.projectSnapshot();
     this.listeners.forEach((fn) => fn());
   }
-  hydrate() {
+  hydrate(seed?: () => Database) {
     const raw = this.storage.read();
     if (raw) this.db = validateDatabase(JSON.parse(raw));
+    else if (seed) this.commit(seed());
     this.emit();
     return !!raw;
   }
@@ -115,8 +180,8 @@ export class Repository {
     this.emit();
   }
   replace(input: unknown) {
-    if (this.role !== "Super Admin")
-      throw new Error("Switch to Super Admin to replace application data.");
+    if (this.access()?.role !== "Super Admin")
+      throw new Error("Only a Super Admin can replace application data.");
     this.commit(input);
   }
   private commit(input: unknown) {
@@ -133,6 +198,9 @@ export class Repository {
   }
   save<K extends Collection>(collection: K, record: RecordFor<K>) {
     this.assertWrite(collection);
+    this.assertRecord(record);
+    const oldRecord = this.db[collection].find((r) => r.id === record.id);
+    if (oldRecord) this.assertRecord(oldRecord);
     const next = structuredClone(this.db);
     if (collection === "accounts") {
       const entry = record as RecordFor<"accounts">;
@@ -177,6 +245,9 @@ export class Repository {
   }
   remove(collection: Collection, id: string) {
     this.assertWrite(collection);
+    const record = this.db[collection].find((r) => r.id === id);
+    if (!record) throw new Error("Record not found.");
+    this.assertRecord(record);
     const next = structuredClone(this.db);
     if (
       collection === "machines" &&
@@ -242,6 +313,7 @@ export class Repository {
     this.commit(next);
   }
   clearAttendance(projectId: string, date: string) {
+    this.assertProject(projectId);
     this.commit({
       ...this.db,
       attendance: this.db.attendance.filter(
@@ -265,6 +337,7 @@ export class Repository {
     }[],
   ) {
     const next = structuredClone(this.db);
+    this.assertProject(projectId);
     const stamp = new Date().toISOString();
     for (const entry of entries) {
       const old = next.attendance.find(

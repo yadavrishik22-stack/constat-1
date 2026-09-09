@@ -24,6 +24,7 @@ class MemoryStorage implements StorageAdapter {
 function setup() {
   const storage = new MemoryStorage();
   const repo = new Repository(storage);
+  repo.setAccessProvider(() => ({ role: "Super Admin", projectIds: [] }));
   repo.replace(createSeed(photo));
   return { repo, storage };
 }
@@ -42,6 +43,7 @@ describe("Repository and derived statistics", () => {
     };
     repo.save("diesel", row);
     const restored = new Repository(storage);
+    restored.setAccessProvider(() => ({ role: "Super Admin", projectIds: [] }));
     restored.hydrate();
     const s = statistics(
       restored.getSnapshot(),

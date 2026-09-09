@@ -1,4 +1,8 @@
 import { test, expect, Page } from "@playwright/test";
+import { login } from "./helpers";
+test.beforeEach(async ({ page }) => {
+  await login(page);
+});
 const png = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aF9sAAAAASUVORK5CYII=",
   "base64",
@@ -166,7 +170,7 @@ test("bulk attendance, labour uniqueness and workforce", async ({ page }) => {
     page.getByRole("alert").filter({ hasText: "already exists" }),
   ).toBeVisible();
   await page.getByRole("button", { name: "Cancel", exact: true }).click();
-  await navigate(page, "/");
+  await navigate(page, "/dashboard");
   await expect(
     page
       .locator(".stat")
@@ -237,7 +241,7 @@ test("all pages and mobile entry fit the viewport", async ({ page }) => {
     await expect(page.locator("h1")).toBeVisible();
   }
   await page.setViewportSize({ width: 390, height: 844 });
-  await navigate(page, "/");
+  await navigate(page, "/dashboard");
   await page.screenshot({
     path: "test-results/dashboard-mobile.png",
     fullPage: true,

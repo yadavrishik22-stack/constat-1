@@ -337,10 +337,12 @@ export function DataManagement() {
       )}
       <div className="info-note">
         <p>
-          Local beta · The role selector is for testing only; it is not
-          authentication. No sign-in or cloud sync. Clearing browser site data
-          removes your records. Keep exported backups before changing browsers
-          or resetting data.
+          Local beta · Login simulates account and site permissions in this
+          browser; it is not production security. No cloud sync. Accounts and
+          site access are stored separately and are preserved when operational
+          data is reset or imported. Clearing browser site data removes your
+          records. Keep exported backups before changing browsers or resetting
+          data.
         </p>
       </div>
       <Confirm

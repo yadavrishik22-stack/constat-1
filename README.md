@@ -1,6 +1,6 @@
 # ConStat — Construction Statistics Tracker
 
-A local V1 beta built with Next.js App Router, TypeScript, Tailwind CSS, Radix accessible dialogs, React Hook Form, Zod, Lucide, and Recharts. No external backend, authentication, cloud storage, or paid API is configured.
+A local V1 beta built with Next.js App Router, TypeScript, Tailwind CSS, Radix accessible dialogs, React Hook Form, Zod, Lucide, and Recharts. Includes local demo authentication and explicit site permissions. No external backend, production authentication, cloud storage, or paid API is configured.
 
 ## Run locally
 
@@ -25,7 +25,13 @@ The end-to-end suite expects a running local server at port 3000 and installed G
 
 ## Pages
 
-- `/`: project dashboard, date filters, diesel and workforce charts, material stock
+- `/`: public construction landing page
+- `/login`, `/signup`, `/account-status`: local account workflows
+- `/buy`: ₹25,999 purchase request flow with local persistence
+- `/dashboard`: authorized project dashboard, date filters, diesel and workforce charts, material stock
+- `/users`: Super Admin approvals, employees, site grants/revocations and requests
+- `/purchase-requests`: Super Admin view of locally submitted purchase requests
+- `/my-sites`: assigned sites, available site names and access requests
 - `/diesel`: diesel entry, required meter photo, filtering and machine summaries
 - `/machinery`: project machinery registry
 - `/employees`: technical employee registry
@@ -60,7 +66,7 @@ Open Data Management to export, restore a previous ConStat JSON export, load sam
 
 ## V2 boundary
 
-Replace the storage/repository implementation with a cloud service while keeping the typed models, forms, and calculations. Supabase, auth, roles, remote image storage, multi-device sync, and realtime collaboration are intentionally left for V2.
+Replace the storage/repository implementation with a cloud service while keeping the typed models, forms, and calculations. Appwrite production authentication, server-side permissions, remote image storage, multi-device sync and realtime collaboration are intentionally left for V2. See [Appwrite migration plan](docs/APPWRITE_MIGRATION.md).
 
 ## Deploy through GitHub to Vercel
 
@@ -80,10 +86,25 @@ The local beta now includes `/stores` (owned equipment and daily usage), `/work`
 - **Accounts:** `SITE-0001`-style numbers are generated per project. A persisted project counter prevents reusing deleted numbers. Accounts are entered independently; recording diesel or a material receipt does not automatically add an account entry or double-count expenses.
 - **Issues:** resolution dates are set when resolved, and cleared when reopened. Related machines/items must belong to the project.
 - **Work:** quantities are optional; measured totals are grouped by activity and unit to avoid adding unlike units. New projects get Earthwork, Blasting and default account categories. Existing projects can load defaults in the configuration tabs or create custom ones.
-- **Roles:** the header's Super Admin / Employee selector simulates permissions locally. Employees can record operations while master configuration and full database replacement are restricted to Super Admin. This is not authentication or a security boundary.
+- **Roles:** derive from the logged-in account. Approved employees can record operations only in explicitly assigned sites; master configuration, User Management and Data Management require Super Admin. The old testing role selector is removed. This is local workflow simulation, not a production security boundary.
 
 ### Saved-data compatibility
 
 The JSON database schema is now version 2; the product remains V1 beta. The existing storage key is retained. `src/lib/migrations.ts` reads earlier version-1 backups and saved data without deleting records. Historical diesel entries without a bill are marked as missing, and historical steel consumption without an area is marked unclassified. Editing those records requires completing the newly required fields. No historical photo or area is invented. New collections start empty until populated or sample data is explicitly loaded.
 
 A shared `PhotoUpload` component compresses meter photos, diesel bills, optional account receipts, and optional issue photos. Both meter and bill photos are required for new diesel entries. Backups include every new entity, project configuration, and stored image. `src/lib/seed.ts` remains the only sample-data source, with clearly labeled meter and receipt illustrations.
+
+## Login and account testing
+
+| Role        | Email / username                   | Password     |
+| ----------- | ---------------------------------- | ------------ |
+| Super Admin | admin@constat.in / superadmin      | Admin@123    |
+| Employee    | employee@constat.in / siteemployee | Employee@123 |
+
+Use the same browser for the entire flow: sign up → pending status → log in as admin → approve under User Management → optionally assign sites → log back in as employee. Approved users with no sites can request access through My Sites. Admins can approve requests, directly grant/revoke sites, reject or deactivate signup accounts. Both demo accounts remain available; test deactivation with a new signup.
+
+Accounts, memberships and requests live in independently versioned `constat.accounts.v1`; the session uses `constat.session.v1`. Existing operational data is retained and never reset by account setup. Data Management operational imports/resets preserve accounts and access history. Signup passwords use salted PBKDF2 through Web Crypto; public snapshots exclude hashes. These are browser-local simulations, NOT production security: DevTools can bypass them. Accounts/approvals do not sync between devices. HTTPS or localhost is required for Web Crypto (plain HTTP LAN phone login is not supported).
+
+Purchase intent submissions are stored separately under `constat.purchase-requests.v1`. The public `/buy` page records the ₹25,999 setup request locally; Super Admin can review and update its status under Purchase Requests. This is a frontend beta inbox and does not submit a payment or send data to ConStat across devices.
+
+Landing photo attribution: [Jan Huber / Unsplash](public/images/landing/ATTRIBUTION.md). Animation respects reduced motion.

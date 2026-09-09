@@ -21,6 +21,7 @@ class Memory implements StorageAdapter {
 function setup() {
   const storage = new Memory(),
     repo = new Repository(storage);
+  repo.setAccessProvider(() => ({ role: "Super Admin", projectIds: [] }));
   repo.replace(createSeed(photo));
   return { repo, storage, db: repo.getSnapshot() };
 }
@@ -79,7 +80,10 @@ describe("Extended V1 operations", () => {
       date: today(),
       quantity: 2,
     };
-    repo.setRole("Employee");
+    repo.setAccessProvider(() => ({
+      role: "Employee",
+      projectIds: ["project-demo"],
+    }));
     repo.save("storeUsage", entry);
     expect(repo.getSnapshot().storeItems[0].totalQuantity).toBe(3);
     expect(() =>
@@ -95,7 +99,7 @@ describe("Extended V1 operations", () => {
       repo.save("storeItems", { ...db.storeItems[0], totalQuantity: 2 }),
     ).toThrow(/Super Admin/);
     expect(() => repo.replace(db)).toThrow(/Super Admin/);
-    repo.setRole("Super Admin");
+    repo.setAccessProvider(() => ({ role: "Super Admin", projectIds: [] }));
     expect(() => repo.remove("storeItems", entry.storeItemId)).toThrow(
       /history/,
     );
@@ -254,6 +258,7 @@ describe("Extended V1 operations", () => {
   it("round-trips all new entities and pictures through JSON and refresh", () => {
     const { repo, storage, db } = setup();
     const restored = new Repository(storage);
+    restored.setAccessProvider(() => ({ role: "Super Admin", projectIds: [] }));
     restored.hydrate();
     expect(restored.getSnapshot()).toEqual(db);
     repo.replace(JSON.parse(JSON.stringify(db)));

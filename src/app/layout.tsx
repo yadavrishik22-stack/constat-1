@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Toaster } from "sonner";
 import { StoreProvider } from "@/components/store";
 import "./globals.css";
+import "./public.css";
 export const metadata: Metadata = {
   title: "ConStat — Construction Statistics Tracker",
   description: "Simple, local construction site operations tracking.",
